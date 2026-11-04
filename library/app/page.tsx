@@ -1,69 +1,169 @@
-import Image from "next/image";
+import { Suspense } from "react";
+import { connection } from "next/server";
+import Link from "next/link";
+import { getBooks } from "@/db/queries";
+import AddBookForm from "./add-book-form";
+
+function formatDueDate(date: string) {
+  return new Intl.DateTimeFormat("en", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${date}T00:00:00Z`));
+}
+
+async function BookList() {
+  await connection();
+  const books = await getBooks();
+  const onLoanCount = books.filter((book) => book.memberName !== null).length;
+  const availableCount = books.length - onLoanCount;
+
+  return (
+    <>
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:mb-8 sm:gap-4">
+        <div className="rounded-2xl border border-[#e5e3db] bg-white p-4 shadow-sm sm:p-5">
+          <p className="text-sm font-medium text-[#686b61]">On the shelf</p>
+          <p className="mt-1 text-2xl font-semibold tracking-tight text-[#233d32]">
+            {availableCount}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-[#e5e3db] bg-white p-4 shadow-sm sm:p-5">
+          <p className="text-sm font-medium text-[#686b61]">On loan</p>
+          <p className="mt-1 text-2xl font-semibold tracking-tight text-[#8b5825]">
+            {onLoanCount}
+          </p>
+        </div>
+      </div>
+
+      {books.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-[#d6d3c9] bg-white/70 px-5 py-12 text-center">
+          <p className="font-medium text-[#30372f]">No books in the library yet</p>
+          <p className="mt-2 text-sm text-[#686b61]">
+            Books will appear here once they have been added.
+          </p>
+        </div>
+      ) : (
+        <ul className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+          {books.map((book) => {
+            const isOnLoan = book.memberName !== null;
+
+            return (
+              <li
+                key={book.id}
+                className="flex min-h-44 flex-col justify-between rounded-2xl border border-[#e5e3db] bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#85877e]">
+                      {book.year}
+                    </p>
+                    <span
+                      className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        isOnLoan
+                          ? "bg-[#f8ecd9] text-[#80501d]"
+                          : "bg-[#e6f0e8] text-[#2c5a3f]"
+                      }`}
+                    >
+                      {isOnLoan ? "On loan" : "Available"}
+                    </span>
+                  </div>
+                  <h3 className="mt-3 text-lg font-semibold leading-snug tracking-tight text-[#252c26]">
+                    {book.title}
+                  </h3>
+                  <p className="mt-1 text-sm text-[#686b61]">
+                    by {book.authorName}
+                  </p>
+                </div>
+
+                <p className="mt-5 border-t border-[#eeece6] pt-3 text-sm leading-5 text-[#50564d]">
+                  {isOnLoan && book.dueOn ? (
+                    <>
+                      On loan to{" "}
+                      <span className="font-medium text-[#30372f]">
+                        {book.memberName}
+                      </span>
+                      , due {formatDueDate(book.dueOn)}
+                    </>
+                  ) : (
+                    "Ready to borrow"
+                  )}
+                </p>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </>
+  );
+}
+
+function BookListFallback() {
+  return (
+    <div
+      aria-label="Loading books"
+      className="grid animate-pulse gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3"
+    >
+      {[1, 2, 3].map((item) => (
+        <div
+          key={item}
+          className="h-44 rounded-2xl border border-[#e5e3db] bg-white"
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen bg-[#f6f5ef] px-4 pb-12 text-[#252c26] sm:px-6 sm:pb-16">
+      <div className="mx-auto max-w-6xl">
+        <header className="flex items-center justify-between border-b border-[#e4e2d9] py-4 sm:py-5">
+          <Link href="/" className="flex min-h-11 items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-xl bg-[#294737] text-lg text-white">
+              L
+            </span>
+            <span className="text-sm font-semibold tracking-tight text-[#30372f] sm:text-base">
+              The Reading Room
+            </span>
+          </Link>
+          <span className="text-xs font-medium text-[#73766d] sm:text-sm">
+            Community library
+          </span>
+        </header>
+
+        <section className="py-9 sm:py-14">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#54715d]">
+            A little something for your next chapter
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          <h1 className="mt-3 max-w-2xl text-3xl font-semibold leading-tight tracking-tight text-[#233d32] sm:text-5xl">
+            Find your next good read.
+          </h1>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-[#686b61] sm:mt-4 sm:text-base">
+            Browse the collection and see what is waiting on the shelf.
+          </p>
+        </section>
+
+        <section aria-labelledby="collection-heading">
+          <div className="mb-4 flex items-end justify-between sm:mb-5">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#85877e]">
+                The collection
+              </p>
+              <h2
+                id="collection-heading"
+                className="mt-1 text-xl font-semibold tracking-tight text-[#30372f] sm:text-2xl"
+              >
+                Books
+              </h2>
+            </div>
+          </div>
+          <AddBookForm />
+          <Suspense fallback={<BookListFallback />}>
+            <BookList />
+          </Suspense>
+        </section>
+      </div>
+    </main>
   );
 }
