@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
-import type { FormEvent } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   deleteBook,
@@ -63,13 +62,28 @@ export default function BookActions({
     returnBook,
     initialLoanState,
   );
+  const [deleteCountdown, setDeleteCountdown] = useState<number | null>(null);
+  const [deleteBlocked, setDeleteBlocked] = useState(false);
+  const deleteFormRef = useRef<HTMLFormElement>(null);
   const isOnLoan = book.memberName !== null;
 
-  function confirmDelete(event: FormEvent<HTMLFormElement>) {
-    if (!window.confirm(`Delete "${book.title}"? This cannot be undone.`)) {
-      event.preventDefault();
+  useEffect(() => {
+    if (deleteCountdown === null) {
+      return;
     }
-  }
+
+    const timer = window.setTimeout(() => {
+      if (deleteCountdown <= 1) {
+        setDeleteCountdown(null);
+        deleteFormRef.current?.requestSubmit();
+        return;
+      }
+
+      setDeleteCountdown(deleteCountdown - 1);
+    }, 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [deleteCountdown]);
 
   return (
     <div className="mt-4 border-t border-[#eeece6] pt-3">
@@ -169,18 +183,56 @@ export default function BookActions({
         </form>
       </details>
 
-      <form action={deleteAction} className="mt-3" onSubmit={confirmDelete}>
+      <form ref={deleteFormRef} action={deleteAction} className="mt-3">
         <input name="id" type="hidden" value={book.id} />
         <button
           className="min-h-10 rounded-lg border border-[#d7aaa2] px-4 text-sm font-semibold text-[#9b3d2c] hover:bg-[#fbefed] disabled:cursor-wait disabled:opacity-60"
-          disabled={deletePending}
-          type="submit"
+          disabled={deletePending || deleteCountdown !== null}
+          onClick={() => {
+            if (isOnLoan) {
+              setDeleteBlocked(true);
+              return;
+            }
+
+            setDeleteBlocked(false);
+            setDeleteCountdown(10);
+          }}
+          type="button"
         >
-          {deletePending ? "Deleting..." : "Delete book"}
+          {deletePending
+            ? "Moving to Trash..."
+            : deleteCountdown === null
+              ? "Move to Trash"
+              : `Moving to Trash in ${deleteCountdown}s`}
         </button>
-        {isOnLoan && (
+        {deleteCountdown !== null && (
+          <div
+            aria-live="polite"
+            className="mt-2 flex items-center gap-3 text-xs text-[#686b61]"
+            role="status"
+          >
+            <span>You can still cancel.</span>
+            <button
+              className="font-semibold text-[#294737] underline"
+              onClick={() => setDeleteCountdown(null)}
+              type="button"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+        {isOnLoan && !deleteBlocked && (
           <p className="mt-2 text-xs text-[#686b61]">
             This book must be returned before it can be deleted.
+          </p>
+        )}
+        {deleteBlocked && (
+          <p
+            aria-live="assertive"
+            className="mt-2 text-sm text-[#9b3d2c]"
+            role="alert"
+          >
+            This book is on loan and cannot be moved to Trash. Record its return first.
           </p>
         )}
         <ActionMessage state={deleteState} />

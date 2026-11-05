@@ -69,6 +69,9 @@ export default function MembersPage() {
             <Link aria-current="page" className="text-[#294737]" href="/members">
               Members
             </Link>
+            <Link className="ml-5 text-[#73766d] hover:text-[#294737]" href="/trash">
+              Trash
+            </Link>
           </nav>
         </header>
 

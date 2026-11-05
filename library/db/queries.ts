@@ -15,6 +15,15 @@ export type LibraryMember = {
   phone: string | null;
 };
 
+export type TrashedBook = {
+  id: string;
+  title: string;
+  year: number;
+  authorName: string;
+  deletedAt: string;
+  expiresAt: string;
+};
+
 export async function getBooks() {
   return sql<BookWithLoan[]>`
     SELECT
@@ -30,6 +39,7 @@ export async function getBooks() {
       ON loans.book_id = books.id
       AND loans.returned_on IS NULL
     LEFT JOIN members ON members.id = loans.member_id
+    WHERE books.deleted_at IS NULL
     ORDER BY books.title
   `;
 }
@@ -39,5 +49,22 @@ export async function getMembers() {
     SELECT id::text AS id, name, phone
     FROM members
     ORDER BY name
+  `;
+}
+
+export async function getTrashedBooks() {
+  return sql<TrashedBook[]>`
+    SELECT
+      books.id::text AS id,
+      books.title,
+      books.year,
+      authors.name AS "authorName",
+      books.deleted_at::text AS "deletedAt",
+      (books.deleted_at + INTERVAL '20 days')::text AS "expiresAt"
+    FROM books
+    JOIN authors ON authors.id = books.author_id
+    WHERE books.deleted_at IS NOT NULL
+      AND books.deleted_at > now() - INTERVAL '20 days'
+    ORDER BY books.deleted_at DESC, books.title
   `;
 }

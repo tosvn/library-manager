@@ -19,6 +19,11 @@ export type LoanActionState = {
   status: "success" | "error" | null;
 };
 
+export type TrashActionState = {
+  message: string;
+  status: "success" | "error" | null;
+};
+
 export async function addBook(
   _previousState: AddBookState,
   formData: FormData,
@@ -142,6 +147,7 @@ export async function lendBook(
         SELECT id::text AS id
         FROM books
         WHERE id::text = ${bookId}
+          AND deleted_at IS NULL
         FOR UPDATE
       `;
       if (!book) {
@@ -215,6 +221,7 @@ export async function returnBook(
         SELECT id::text AS id
         FROM books
         WHERE id::text = ${bookId}
+          AND deleted_at IS NULL
         FOR UPDATE
       `;
       if (!book) {
@@ -303,6 +310,7 @@ export async function updateBook(
         SELECT id::text AS id
         FROM books
         WHERE id::text = ${id}
+          AND deleted_at IS NULL
         FOR UPDATE
       `;
       if (!book) {
@@ -362,13 +370,14 @@ export async function deleteBook(
     return { status: "error", message: "This book could not be found." };
   }
 
-  let result: "deleted" | "missing" | "on-loan";
+  let result: "trashed" | "missing" | "on-loan";
   try {
     result = await sql.begin(async (transaction) => {
       const [book] = await transaction<{ id: string }[]>`
         SELECT id::text AS id
         FROM books
         WHERE id::text = ${id}
+          AND deleted_at IS NULL
         FOR UPDATE
       `;
       if (!book) {
@@ -387,8 +396,12 @@ export async function deleteBook(
         return "on-loan";
       }
 
-      await transaction`DELETE FROM books WHERE id::text = ${id}`;
-      return "deleted";
+      await transaction`
+        UPDATE books
+        SET deleted_at = now()
+        WHERE id::text = ${id}
+      `;
+      return "trashed";
     });
 
   } catch (error) {
@@ -410,5 +423,81 @@ export async function deleteBook(
   }
 
   revalidatePath("/");
-  redirect("/?notice=book-deleted");
+  revalidatePath("/trash");
+  redirect("/trash?notice=book-moved");
+}
+
+export async function restoreBook(
+  _previousState: TrashActionState,
+  formData: FormData,
+): Promise<TrashActionState> {
+  const idValue = formData.get("id");
+  const id = typeof idValue === "string" ? idValue.trim() : "";
+  if (!/^\d+$/.test(id)) {
+    return { status: "error", message: "This book could not be found." };
+  }
+
+  let result: "restored" | "expired" | "missing";
+  try {
+    result = await sql.begin(async (transaction) => {
+      const [book] = await transaction<{ id: string; expired: boolean }[]>`
+        SELECT
+          id::text AS id,
+          deleted_at + INTERVAL '20 days' <= now() AS expired
+        FROM books
+        WHERE id::text = ${id}
+          AND deleted_at IS NOT NULL
+        FOR UPDATE
+      `;
+      if (!book) {
+        return "missing";
+      }
+
+      if (book.expired) {
+        await transaction`DELETE FROM books WHERE id::text = ${id}`;
+        return "expired";
+      }
+
+      await transaction`
+        UPDATE books
+        SET deleted_at = NULL
+        WHERE id::text = ${id}
+      `;
+      return "restored";
+    });
+  } catch (error) {
+    console.error("Failed to restore book.", error);
+    return {
+      status: "error",
+      message: "The book could not be restored. Please try again.",
+    };
+  }
+
+  if (result === "missing") {
+    return { status: "error", message: "This book could not be found in Trash." };
+  }
+  if (result === "expired") {
+    revalidatePath("/trash");
+    return {
+      status: "error",
+      message: "The 20-day retention period has expired; this book was permanently deleted.",
+    };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/trash");
+  redirect("/trash?notice=book-restored");
+}
+
+export async function emptyTrash() {
+  try {
+    await sql`DELETE FROM books WHERE deleted_at IS NOT NULL`;
+  } catch (error) {
+    console.error("Failed to empty Trash.", error);
+    redirect("/trash?notice=empty-failed");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/trash");
+  redirect("/trash?notice=trash-emptied");
 }
