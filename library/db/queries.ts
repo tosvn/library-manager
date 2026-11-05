@@ -9,6 +9,12 @@ export type BookWithLoan = {
   dueOn: string | null;
 };
 
+export type LibraryMember = {
+  id: string;
+  name: string;
+  phone: string | null;
+};
+
 export async function getBooks() {
   return sql<BookWithLoan[]>`
     SELECT
@@ -25,5 +31,13 @@ export async function getBooks() {
       AND loans.returned_on IS NULL
     LEFT JOIN members ON members.id = loans.member_id
     ORDER BY books.title
+  `;
+}
+
+export async function getMembers() {
+  return sql<LibraryMember[]>`
+    SELECT id::text AS id, name, phone
+    FROM members
+    ORDER BY name
   `;
 }
