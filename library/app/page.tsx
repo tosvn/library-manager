@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { connection } from "next/server";
 import Link from "next/link";
-import { getBooks } from "@/db/queries";
+import { getBooks, getMembers } from "@/db/queries";
 import AddBookForm from "./add-book-form";
 import BookActions from "./book-actions";
 
@@ -38,7 +38,7 @@ async function DeletionNotice({
 
 async function BookList() {
   await connection();
-  const books = await getBooks();
+  const [books, members] = await Promise.all([getBooks(), getMembers()]);
   const onLoanCount = books.filter((book) => book.memberName !== null).length;
   const availableCount = books.length - onLoanCount;
 
@@ -109,10 +109,10 @@ async function BookList() {
                       , due {formatDueDate(book.dueOn)}
                     </>
                   ) : (
-                    "Ready to borrow"
+                    "Available"
                   )}
                 </p>
-                <BookActions book={book} />
+                <BookActions book={book} members={members} />
               </li>
             );
           })}

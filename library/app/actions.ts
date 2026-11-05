@@ -14,6 +14,11 @@ export type AddMemberState = {
   status: "success" | "error" | null;
 };
 
+export type LoanActionState = {
+  message: string;
+  status: "success" | "error" | null;
+};
+
 export async function addBook(
   _previousState: AddBookState,
   formData: FormData,
@@ -114,6 +119,143 @@ export async function addMember(
       message: "The member could not be saved. Please try again.",
     };
   }
+}
+
+export async function lendBook(
+  _previousState: LoanActionState,
+  formData: FormData,
+): Promise<LoanActionState> {
+  const bookIdValue = formData.get("bookId");
+  const memberIdValue = formData.get("memberId");
+  const bookId = typeof bookIdValue === "string" ? bookIdValue.trim() : "";
+  const memberId =
+    typeof memberIdValue === "string" ? memberIdValue.trim() : "";
+
+  if (!/^\d+$/.test(bookId) || !/^\d+$/.test(memberId)) {
+    return { status: "error", message: "Choose a valid book and member." };
+  }
+
+  let result: "lent" | "missing-book" | "missing-member" | "already-loaned";
+  try {
+    result = await sql.begin(async (transaction) => {
+      const [book] = await transaction<{ id: string }[]>`
+        SELECT id::text AS id
+        FROM books
+        WHERE id::text = ${bookId}
+        FOR UPDATE
+      `;
+      if (!book) {
+        return "missing-book";
+      }
+
+      const [member] = await transaction<{ id: string }[]>`
+        SELECT id::text AS id
+        FROM members
+        WHERE id::text = ${memberId}
+      `;
+      if (!member) {
+        return "missing-member";
+      }
+
+      const [activeLoan] = await transaction<{ exists: boolean }[]>`
+        SELECT EXISTS (
+          SELECT 1
+          FROM loans
+          WHERE book_id = ${book.id}
+            AND returned_on IS NULL
+        ) AS exists
+      `;
+      if (activeLoan.exists) {
+        return "already-loaned";
+      }
+
+      await transaction`
+        INSERT INTO loans (book_id, member_id, borrowed_on, due_on)
+        VALUES (${book.id}, ${member.id}, CURRENT_DATE, CURRENT_DATE + 14)
+      `;
+      return "lent";
+    });
+  } catch (error) {
+    console.error("Failed to lend book.", error);
+    return {
+      status: "error",
+      message: "The book could not be lent. Please try again.",
+    };
+  }
+
+  if (result === "missing-book") {
+    return { status: "error", message: "This book could not be found." };
+  }
+  if (result === "missing-member") {
+    return { status: "error", message: "This member could not be found." };
+  }
+  if (result === "already-loaned") {
+    return { status: "error", message: "This book is already on loan." };
+  }
+
+  revalidatePath("/");
+  return { status: "success", message: "Book lent." };
+}
+
+export async function returnBook(
+  _previousState: LoanActionState,
+  formData: FormData,
+): Promise<LoanActionState> {
+  const bookIdValue = formData.get("bookId");
+  const bookId = typeof bookIdValue === "string" ? bookIdValue.trim() : "";
+
+  if (!/^\d+$/.test(bookId)) {
+    return { status: "error", message: "This book could not be found." };
+  }
+
+  let result: "returned" | "missing-book" | "not-on-loan";
+  try {
+    result = await sql.begin(async (transaction) => {
+      const [book] = await transaction<{ id: string }[]>`
+        SELECT id::text AS id
+        FROM books
+        WHERE id::text = ${bookId}
+        FOR UPDATE
+      `;
+      if (!book) {
+        return "missing-book";
+      }
+
+      const [activeLoan] = await transaction<{ id: string }[]>`
+        SELECT id::text AS id
+        FROM loans
+        WHERE book_id = ${book.id}
+          AND returned_on IS NULL
+        FOR UPDATE
+      `;
+      if (!activeLoan) {
+        return "not-on-loan";
+      }
+
+      await transaction`
+        UPDATE loans
+        SET returned_on = CURRENT_DATE
+        WHERE id::text = ${activeLoan.id}
+      `;
+      return "returned";
+    });
+  } catch (error) {
+    console.error("Failed to return book.", error);
+    return {
+      status: "error",
+      message: "The book could not be returned. Please try again.",
+    };
+  }
+
+  if (result === "missing-book") {
+    return { status: "error", message: "This book could not be found." };
+  }
+  if (result === "not-on-loan") {
+    return { status: "error", message: "This book is not currently on loan." };
+  }
+
+  revalidatePath("/");
+  return { status: "success", message: "Book returned. It is now available." };
 }
 
 export async function updateBook(
