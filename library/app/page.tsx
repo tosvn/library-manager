@@ -155,9 +155,14 @@ export default function Home({
               The Reading Room
             </span>
           </Link>
-          <span className="text-xs font-medium text-[#73766d] sm:text-sm">
-            Community library
-          </span>
+          <nav aria-label="Main navigation" className="flex items-center text-sm font-medium">
+            <Link aria-current="page" className="mr-5 text-[#294737]" href="/">
+              Books
+            </Link>
+            <Link className="text-[#73766d] hover:text-[#294737]" href="/members">
+              Members
+            </Link>
+          </nav>
         </header>
 
         <section className="py-9 sm:py-14">

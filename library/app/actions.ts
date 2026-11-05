@@ -9,6 +9,11 @@ export type AddBookState = {
   status: "success" | "error" | null;
 };
 
+export type AddMemberState = {
+  message: string;
+  status: "success" | "error" | null;
+};
+
 export async function addBook(
   _previousState: AddBookState,
   formData: FormData,
@@ -77,6 +82,36 @@ export async function addBook(
     return {
       status: "error",
       message: "The book could not be saved. Please try again.",
+    };
+  }
+}
+
+export async function addMember(
+  _previousState: AddMemberState,
+  formData: FormData,
+): Promise<AddMemberState> {
+  const nameValue = formData.get("name");
+  const phoneValue = formData.get("phone");
+  const name = typeof nameValue === "string" ? nameValue.trim() : "";
+  const phone = typeof phoneValue === "string" ? phoneValue.trim() : "";
+
+  if (!name) {
+    return { status: "error", message: "Enter a member name." };
+  }
+
+  try {
+    await sql`
+      INSERT INTO members (name, phone)
+      VALUES (${name}, ${phone || null})
+    `;
+
+    revalidatePath("/members");
+    return { status: "success", message: "Member added." };
+  } catch (error) {
+    console.error("Failed to add member.", error);
+    return {
+      status: "error",
+      message: "The member could not be saved. Please try again.",
     };
   }
 }
