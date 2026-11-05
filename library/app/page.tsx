@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import Link from "next/link";
 import { getBooks } from "@/db/queries";
 import AddBookForm from "./add-book-form";
+import BookActions from "./book-actions";
 
 function formatDueDate(date: string) {
   return new Intl.DateTimeFormat("en", {
@@ -11,6 +12,28 @@ function formatDueDate(date: string) {
     year: "numeric",
     timeZone: "UTC",
   }).format(new Date(`${date}T00:00:00Z`));
+}
+
+async function DeletionNotice({
+  searchParams,
+}: {
+  searchParams: Promise<{ notice?: string | string[] }>;
+}) {
+  const { notice } = await searchParams;
+
+  if (notice !== "book-deleted") {
+    return null;
+  }
+
+  return (
+    <p
+      aria-live="polite"
+      className="mb-4 rounded-lg border border-[#c6d9ca] bg-[#e6f0e8] px-4 py-3 text-sm font-medium text-[#2c5a3f]"
+      role="status"
+    >
+      Book deleted.
+    </p>
+  );
 }
 
 async function BookList() {
@@ -89,6 +112,7 @@ async function BookList() {
                     "Ready to borrow"
                   )}
                 </p>
+                <BookActions book={book} />
               </li>
             );
           })}
@@ -114,7 +138,11 @@ function BookListFallback() {
   );
 }
 
-export default function Home() {
+export default function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ notice?: string | string[] }>;
+}) {
   return (
     <main className="min-h-screen bg-[#f6f5ef] px-4 pb-12 text-[#252c26] sm:px-6 sm:pb-16">
       <div className="mx-auto max-w-6xl">
@@ -145,6 +173,9 @@ export default function Home() {
         </section>
 
         <section aria-labelledby="collection-heading">
+          <Suspense fallback={null}>
+            <DeletionNotice searchParams={searchParams} />
+          </Suspense>
           <div className="mb-4 flex items-end justify-between sm:mb-5">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#85877e]">
