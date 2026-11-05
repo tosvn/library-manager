@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import type { FormEvent } from "react";
 import { emptyTrash, restoreBook, type TrashActionState } from "./actions";
+import Toast from "./toast";
 
 const initialState: TrashActionState = { message: "", status: null };
 
@@ -22,15 +23,7 @@ export function RestoreBookButton({ id }: { id: string }) {
       >
         {isPending ? "Restoring..." : "Restore"}
       </button>
-      {state.message && (
-        <p
-          aria-live="polite"
-          className="mt-2 text-sm text-[#9b3d2c]"
-          role="alert"
-        >
-          {state.message}
-        </p>
-      )}
+      <Toast state={state} />
     </form>
   );
 }

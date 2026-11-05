@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { addMember, type AddMemberState } from "./actions";
+import Toast from "./toast";
 
 const initialState: AddMemberState = { message: "", status: null };
 
@@ -41,17 +42,7 @@ export default function AddMemberForm() {
           {isPending ? "Adding..." : "Add member"}
         </button>
       </div>
-      {state.message && (
-        <p
-          aria-live="polite"
-          className={`mt-3 text-sm ${
-            state.status === "success" ? "text-[#2c5a3f]" : "text-[#9b3d2c]"
-          }`}
-          role={state.status === "error" ? "alert" : "status"}
-        >
-          {state.message}
-        </p>
-      )}
+      <Toast state={state} />
     </form>
   );
 }

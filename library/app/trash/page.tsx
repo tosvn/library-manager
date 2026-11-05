@@ -1,8 +1,9 @@
 import { Suspense } from "react";
 import { connection } from "next/server";
-import Link from "next/link";
-import { getTrashedBooks } from "@/db/queries";
+import { getTrashedBooks, type TrashedBook } from "@/db/queries";
 import { EmptyTrashButton, RestoreBookButton } from "../trash-actions";
+import DataLoadError from "../data-load-error";
+import SiteHeader from "../site-header";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en", {
@@ -49,7 +50,13 @@ async function TrashNotice({
 
 async function TrashList() {
   await connection();
-  const books = await getTrashedBooks();
+  let books: TrashedBook[];
+  try {
+    books = await getTrashedBooks();
+  } catch (error) {
+    console.error("Failed to load Trash.", error);
+    return <DataLoadError resource="Trash" />;
+  }
 
   return (
     <>
@@ -117,27 +124,7 @@ export default function TrashPage({
   return (
     <main className="min-h-screen bg-[#f6f5ef] px-4 pb-12 text-[#252c26] sm:px-6 sm:pb-16">
       <div className="mx-auto max-w-6xl">
-        <header className="flex items-center justify-between border-b border-[#e4e2d9] py-4 sm:py-5">
-          <Link href="/" className="flex min-h-11 items-center gap-3">
-            <span className="flex size-10 items-center justify-center rounded-xl bg-[#294737] text-lg text-white">
-              L
-            </span>
-            <span className="text-sm font-semibold tracking-tight text-[#30372f] sm:text-base">
-              The Reading Room
-            </span>
-          </Link>
-          <nav aria-label="Main navigation" className="flex items-center text-sm font-medium">
-            <Link className="mr-5 text-[#73766d] hover:text-[#294737]" href="/">
-              Books
-            </Link>
-            <Link className="text-[#73766d] hover:text-[#294737]" href="/members">
-              Members
-            </Link>
-            <Link aria-current="page" className="ml-5 text-[#294737]" href="/trash">
-              Trash
-            </Link>
-          </nav>
-        </header>
+        <SiteHeader currentPage="trash" />
 
         <section className="py-9 sm:py-14">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#54715d]">

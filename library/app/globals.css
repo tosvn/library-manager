@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light dark;
+  --background: #f6f5ef;
+  --foreground: #252c26;
 }
 
 @theme inline {
@@ -12,15 +13,87 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --background: #121a16;
+    --foreground: #e8eee9;
+  }
+
+  main {
+    background-color: var(--background) !important;
+    color: var(--foreground) !important;
+  }
+
+  main [class~="bg-white"],
+  main [class~="bg-white/70"] {
+    background-color: #1b2821 !important;
+  }
+
+  main [class~="bg-[#f3f2ed]"] {
+    background-color: #202d26 !important;
+  }
+
+  main [class~="bg-[#f6f5ef]"] {
+    background-color: #202d26 !important;
+  }
+
+  main [class~="bg-[#e6f0e8]"] {
+    background-color: #254333 !important;
+  }
+
+  main [class~="bg-[#f8ecd9]"] {
+    background-color: #493a26 !important;
+  }
+
+  main [class~="bg-[#f8e2df]"],
+  main [class~="bg-[#fbefed]"] {
+    background-color: #452b29 !important;
+  }
+
+  main [class~="border-[#e5e3db]"],
+  main [class~="border-[#e4e2d9]"],
+  main [class~="border-[#eeece6]"],
+  main [class~="border-[#d6d3c9]"] {
+    border-color: #39483f !important;
+  }
+
+  main [class~="text-[#252c26]"],
+  main [class~="text-[#30372f]"],
+  main [class~="text-[#233d32]"],
+  main [class~="text-[#50564d]"],
+  main [class~="text-[#686b61]"],
+  main [class~="text-[#73766d]"],
+  main [class~="text-[#85877e]"],
+  main [class~="text-[#54715d]"] {
+    color: #d3ddd5 !important;
+  }
+
+  main [class~="text-[#294737]"],
+  main [class~="text-[#2c5a3f]"] {
+    color: #9ac9a5 !important;
+  }
+
+  main [class~="text-[#80501d]"] {
+    color: #e4bd7d !important;
+  }
+
+  main [class~="text-[#9b3d2c]"] {
+    color: #f0a197 !important;
+  }
+
+  main [class~="divide-[#eeece6]"] > :not(:last-child) {
+    border-color: #39483f !important;
+  }
+
+  main dialog {
+    background-color: #1b2821;
+    color: #e8eee9;
+  }
 }
