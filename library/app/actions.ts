@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { sql } from "@/db";
+import { getSql } from "@/db";
 
 export type AddBookState = {
   message: string;
@@ -63,7 +63,7 @@ export async function addBook(
   }
 
   try {
-    await sql.begin(async (transaction) => {
+    await getSql().begin(async (transaction) => {
       await transaction`
         SELECT pg_advisory_xact_lock(hashtextextended(lower(${authorName}), 0))
       `;
@@ -115,7 +115,7 @@ export async function addMember(
   }
 
   try {
-    await sql`
+    await getSql()`
       INSERT INTO members (name, phone)
       VALUES (${name}, ${phone || null})
     `;
@@ -167,7 +167,7 @@ export async function lendBook(
     | "missing-member"
     | "already-loaned";
   try {
-    result = await sql.begin(async (transaction) => {
+    result = await getSql().begin(async (transaction) => {
       const [book] = await transaction<{ id: string }[]>`
         SELECT id::text AS id
         FROM books
@@ -250,7 +250,7 @@ export async function returnBook(
 
   let result: "returned" | "missing-book" | "not-on-loan";
   try {
-    result = await sql.begin(async (transaction) => {
+    result = await getSql().begin(async (transaction) => {
       const [book] = await transaction<{ id: string }[]>`
         SELECT id::text AS id
         FROM books
@@ -339,7 +339,7 @@ export async function updateBook(
 
   let updated: boolean;
   try {
-    updated = await sql.begin(async (transaction) => {
+    updated = await getSql().begin(async (transaction) => {
       const [book] = await transaction<{ id: string }[]>`
         SELECT id::text AS id
         FROM books
@@ -406,7 +406,7 @@ export async function deleteBook(
 
   let result: "trashed" | "missing" | "on-loan";
   try {
-    result = await sql.begin(async (transaction) => {
+    result = await getSql().begin(async (transaction) => {
       const [book] = await transaction<{ id: string }[]>`
         SELECT id::text AS id
         FROM books
@@ -473,7 +473,7 @@ export async function restoreBook(
 
   let result: "restored" | "expired" | "missing";
   try {
-    result = await sql.begin(async (transaction) => {
+    result = await getSql().begin(async (transaction) => {
       const [book] = await transaction<{ id: string; expired: boolean }[]>`
         SELECT
           id::text AS id,
@@ -525,7 +525,7 @@ export async function restoreBook(
 
 export async function emptyTrash() {
   try {
-    await sql`DELETE FROM books WHERE deleted_at IS NOT NULL`;
+    await getSql()`DELETE FROM books WHERE deleted_at IS NOT NULL`;
   } catch (error) {
     console.error("Failed to empty Trash.", error);
     redirect("/trash?notice=empty-failed");

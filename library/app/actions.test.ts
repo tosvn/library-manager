@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
   sql: Object.assign(vi.fn(), { begin: vi.fn() }),
 }));
 
-vi.mock("@/db", () => ({ sql: mocks.sql }));
+vi.mock("@/db", () => ({ getSql: () => mocks.sql }));
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 

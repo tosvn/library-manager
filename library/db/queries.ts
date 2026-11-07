@@ -1,4 +1,4 @@
-import { sql } from "@/db";
+import { getSql } from "@/db";
 
 export type BookWithLoan = {
   id: string;
@@ -25,6 +25,7 @@ export type TrashedBook = {
 };
 
 export async function getBooks() {
+  const sql = getSql();
   return sql<BookWithLoan[]>`
     SELECT
       books.id::text AS id,
@@ -45,6 +46,7 @@ export async function getBooks() {
 }
 
 export async function getMembers() {
+  const sql = getSql();
   return sql<LibraryMember[]>`
     SELECT id::text AS id, name, phone
     FROM members
@@ -53,6 +55,7 @@ export async function getMembers() {
 }
 
 export async function getTrashedBooks() {
+  const sql = getSql();
   return sql<TrashedBook[]>`
     SELECT
       books.id::text AS id,

@@ -1,6 +1,9 @@
+import { connection } from "next/server";
 import { getBooks } from "@/db/queries";
 
 export async function GET() {
+  await connection();
+
   try {
     const books = await getBooks();
     return Response.json(books);
