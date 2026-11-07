@@ -29,7 +29,7 @@ export default function Toast({
   return (
     <div
       aria-live={isError ? "assertive" : "polite"}
-      className={`fixed bottom-5 right-5 z-50 max-w-sm rounded-xl border px-4 py-3 text-sm font-medium shadow-lg ${
+      className={`library-toast fixed bottom-5 right-5 z-50 max-w-sm rounded-xl border px-4 py-3 text-sm font-medium shadow-lg ${
         isError
           ? "border-[#d7aaa2] bg-[#fbefed] text-[#9b3d2c]"
           : "border-[#c6d9ca] bg-[#e6f0e8] text-[#2c5a3f]"

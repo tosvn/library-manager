@@ -8,10 +8,10 @@ export default function SiteHeader({ currentPage }: { currentPage: SitePage }) {
     <header className="library-site-header relative flex items-center justify-between border-b border-[#e4e2d9] py-4 sm:py-5">
       <Link href="/" className="flex min-h-11 items-center gap-3">
         <span className="library-logo flex size-10 items-center justify-center rounded-xl bg-[#294737] text-lg text-white">
-          L
+          B
         </span>
         <span className="text-sm font-semibold tracking-tight text-[#30372f] sm:text-base">
-          The Reading Room
+          BookNest
         </span>
       </Link>
       <div className="flex items-center gap-2 sm:gap-6">

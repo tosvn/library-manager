@@ -207,11 +207,10 @@ export default function BookCollection({
           </div>
         ) : view === "cards" ? (
           <ul className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-            {visibleBooks.map((book, index) => (
+            {visibleBooks.map((book) => (
               <li
                 key={book.id}
-                className="library-book-card relative flex min-h-48 flex-col justify-between overflow-hidden rounded-2xl border border-[#e5e3db] bg-white p-5 sm:p-6"
-                style={{ animationDelay: `${Math.min(index, 8) * 65}ms` }}
+                className="library-enter-card library-book-card relative flex min-h-48 flex-col justify-between overflow-visible rounded-2xl border border-[#e5e3db] bg-white p-5 sm:p-6"
               >
                 <span
                   aria-hidden="true"

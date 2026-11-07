@@ -29,7 +29,7 @@ export default function AddBookForm() {
       </button>
       <dialog
         aria-labelledby="add-book-title"
-        className="fixed left-1/2 top-1/2 m-0 w-[min(100%-2rem,34rem)] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[#e5e3db] bg-white p-0 text-[#252c26] shadow-2xl backdrop:bg-black/40"
+        className="library-dialog fixed left-1/2 top-1/2 m-0 w-[min(100%-2rem,34rem)] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[#e5e3db] bg-white p-0 text-[#252c26] shadow-2xl backdrop:bg-black/40"
         ref={dialogRef}
       >
         <form action={formAction} className="p-5 sm:p-6">

@@ -161,7 +161,11 @@ export async function lendBook(
     return { status: "error", message: "Due date cannot be in the past." };
   }
 
-  let result: "lent" | "missing-book" | "missing-member" | "already-loaned";
+  let result:
+    | { status: "lent"; memberName: string }
+    | "missing-book"
+    | "missing-member"
+    | "already-loaned";
   try {
     result = await sql.begin(async (transaction) => {
       const [book] = await transaction<{ id: string }[]>`
@@ -175,8 +179,8 @@ export async function lendBook(
         return "missing-book";
       }
 
-      const [member] = await transaction<{ id: string }[]>`
-        SELECT id::text AS id
+      const [member] = await transaction<{ id: string; name: string }[]>`
+        SELECT id::text AS id, name
         FROM members
         WHERE id::text = ${memberId}
       `;
@@ -200,7 +204,7 @@ export async function lendBook(
         INSERT INTO loans (book_id, member_id, borrowed_on, due_on)
         VALUES (${book.id}, ${member.id}, CURRENT_DATE, ${dueOn}::date)
       `;
-      return "lent";
+      return { status: "lent", memberName: member.name };
     });
   } catch (error) {
     console.error("Failed to lend book.", error);
@@ -221,7 +225,16 @@ export async function lendBook(
   }
 
   revalidatePath("/");
-  return { status: "success", message: "Book lent." };
+  const formattedDueDate = new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${dueOn}T00:00:00.000Z`));
+  return {
+    status: "success",
+    message: `Lent to ${result.memberName}. Due date: ${formattedDueDate}.`,
+  };
 }
 
 export async function returnBook(

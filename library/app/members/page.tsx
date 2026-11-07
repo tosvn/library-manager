@@ -28,7 +28,7 @@ async function MemberList() {
       {members.map((member) => (
         <li
           key={member.id}
-          className="rounded-2xl border border-[#e5e3db] bg-white p-5 shadow-sm"
+          className="library-enter-card rounded-2xl border border-[#e5e3db] bg-white p-5 shadow-sm"
         >
           <h3 className="font-semibold text-[#30372f]">{member.name}</h3>
           <p className="mt-2 text-sm text-[#686b61]">

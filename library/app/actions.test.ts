@@ -106,7 +106,7 @@ describe("book actions", () => {
   it("lends an available book to an existing member", async () => {
     setQueryHandler((query) => {
       if (query.includes("from books")) return [{ id: "1" }];
-      if (query.includes("from members")) return [{ id: "2" }];
+      if (query.includes("from members")) return [{ id: "2", name: "Alex Morgan" }];
       if (query.includes("select exists")) return [{ exists: false }];
       return [];
     });
@@ -116,7 +116,10 @@ describe("book actions", () => {
       formData({ bookId: "1", memberId: "2", dueOn: "2030-06-15" }),
     );
 
-    expect(state).toEqual({ status: "success", message: "Book lent." });
+    expect(state).toEqual({
+      status: "success",
+      message: "Lent to Alex Morgan. Due date: June 15, 2030.",
+    });
     expect(mocks.queryHandler).toHaveBeenCalledTimes(4);
     expect(
       mocks.queryHandler.mock.calls.some(

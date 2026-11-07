@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "The Reading Room | Community Library",
-  description: "Browse the community library collection and book availability.",
+  title: "BookNest | Community Library",
+  description: "Browse the BookNest collection and check book availability.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

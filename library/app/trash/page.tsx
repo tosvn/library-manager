@@ -75,7 +75,7 @@ async function TrashList() {
           {books.map((book) => (
             <li
               key={book.id}
-              className="flex flex-col justify-between rounded-2xl border border-[#e5e3db] bg-white p-5 shadow-sm"
+              className="library-enter-card flex flex-col justify-between rounded-2xl border border-[#e5e3db] bg-white p-5 shadow-sm"
             >
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#85877e]">

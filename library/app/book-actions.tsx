@@ -102,7 +102,7 @@ export default function BookActions({
         >
           ⋯
         </summary>
-        <div className="absolute right-0 top-full z-20 mt-1 min-w-36 rounded-xl border border-[#e5e3db] bg-white p-1 shadow-lg">
+        <div className="library-action-menu-panel absolute right-0 top-full z-20 mt-1 min-w-36 rounded-xl border border-[#e5e3db] bg-white p-1 shadow-lg">
           <button
             className="block min-h-10 w-full rounded-lg px-3 text-left text-sm text-[#30372f] hover:bg-[#f3f2ed]"
             onClick={() => {
@@ -128,7 +128,7 @@ export default function BookActions({
 
       <dialog
         aria-labelledby={`lend-title-${book.id}`}
-        className="w-[min(100%-2rem,30rem)] rounded-2xl border border-[#e5e3db] bg-white p-0 text-[#252c26] shadow-2xl backdrop:bg-black/40"
+        className="library-dialog fixed left-1/2 top-1/2 m-0 max-h-[calc(100dvh-2rem)] w-[min(100%-2rem,30rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-[#e5e3db] bg-white p-0 text-[#252c26] shadow-2xl backdrop:bg-black/40"
         ref={lendDialogRef}
       >
         <form action={lendAction} className="p-5 sm:p-6">
@@ -195,7 +195,7 @@ export default function BookActions({
 
       <dialog
         aria-labelledby={`edit-title-${book.id}`}
-        className="w-[min(100%-2rem,34rem)] rounded-2xl border border-[#e5e3db] bg-white p-0 text-[#252c26] shadow-2xl backdrop:bg-black/40"
+        className="library-dialog w-[min(100%-2rem,34rem)] rounded-2xl border border-[#e5e3db] bg-white p-0 text-[#252c26] shadow-2xl backdrop:bg-black/40"
         ref={editDialogRef}
       >
         <form action={editAction} className="p-5 sm:p-6">

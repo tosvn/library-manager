@@ -158,6 +158,17 @@ main [class~="bg-[#f8e2df]"] {
   animation: library-rise-in 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
+.library-enter-card {
+  animation: library-rise-in 560ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.library-enter-card:nth-child(1) { animation-delay: 40ms; }
+.library-enter-card:nth-child(2) { animation-delay: 80ms; }
+.library-enter-card:nth-child(3) { animation-delay: 120ms; }
+.library-enter-card:nth-child(4) { animation-delay: 160ms; }
+.library-enter-card:nth-child(5) { animation-delay: 200ms; }
+.library-enter-card:nth-child(n + 6) { animation-delay: 240ms; }
+
 .library-book-card {
   border-color: #e8e2f5 !important;
   background-color: rgb(255 255 255 / 92%) !important;
@@ -166,13 +177,33 @@ main [class~="bg-[#f8e2df]"] {
     transform 180ms ease,
     box-shadow 180ms ease,
     border-color 180ms ease;
-  animation: library-rise-in 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 .library-book-card:hover {
   border-color: #d3c4ff !important;
   transform: translateY(-4px);
   box-shadow: 0 16px 34px rgb(101 64 217 / 16%);
+}
+
+.library-book-card:has(details[open]) {
+  z-index: 10;
+}
+
+.library-action-menu-panel {
+  transform-origin: top right;
+  animation: library-menu-pop 150ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+dialog.library-dialog[open] {
+  animation: library-dialog-pop 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+dialog.library-dialog[open]::backdrop {
+  animation: library-backdrop-in 180ms ease-out both;
+}
+
+.library-toast {
+  animation: library-toast-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .library-status--available {
@@ -220,6 +251,44 @@ main [class~="bg-[#f8e2df]"] {
   }
   50% {
     box-shadow: 0 0 0 4px rgb(226 59 93 / 14%);
+  }
+}
+
+@keyframes library-menu-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes library-dialog-pop {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes library-backdrop-in {
+  from { background-color: rgb(0 0 0 / 0%); }
+  to { background-color: rgb(0 0 0 / 40%); }
+}
+
+@keyframes library-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
