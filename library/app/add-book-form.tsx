@@ -29,7 +29,7 @@ export default function AddBookForm() {
       </button>
       <dialog
         aria-labelledby="add-book-title"
-        className="w-[min(100%-2rem,34rem)] rounded-2xl border border-[#e5e3db] bg-white p-0 text-[#252c26] shadow-2xl backdrop:bg-black/40"
+        className="fixed left-1/2 top-1/2 m-0 w-[min(100%-2rem,34rem)] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[#e5e3db] bg-white p-0 text-[#252c26] shadow-2xl backdrop:bg-black/40"
         ref={dialogRef}
       >
         <form action={formAction} className="p-5 sm:p-6">
@@ -50,23 +50,71 @@ export default function AddBookForm() {
           <div className="mt-5 grid gap-4">
             <label className="block text-sm font-medium text-[#50564d]">
               Title
-              <input autoComplete="off" className={inputClassName} name="title" required type="text" />
+              <input
+                aria-describedby={state.fieldErrors?.title ? "add-book-title-error" : undefined}
+                aria-invalid={Boolean(state.fieldErrors?.title)}
+                autoComplete="off"
+                className={inputClassName}
+                name="title"
+                onInput={(event) => event.currentTarget.setCustomValidity("")}
+                onInvalid={(event) => event.currentTarget.setCustomValidity("Please enter a book title.")}
+                required
+                type="text"
+              />
+              {state.fieldErrors?.title && (
+                <span className="mt-1 block text-sm text-[#9b3d2c]" id="add-book-title-error">
+                  {state.fieldErrors.title}
+                </span>
+              )}
             </label>
             <label className="block text-sm font-medium text-[#50564d]">
               Author
-              <input autoComplete="off" className={inputClassName} name="author" required type="text" />
+              <input
+                aria-describedby={state.fieldErrors?.author ? "add-book-author-error" : undefined}
+                aria-invalid={Boolean(state.fieldErrors?.author)}
+                autoComplete="off"
+                className={inputClassName}
+                name="author"
+                onInput={(event) => event.currentTarget.setCustomValidity("")}
+                onInvalid={(event) => event.currentTarget.setCustomValidity("Please enter an author.")}
+                required
+                type="text"
+              />
+              {state.fieldErrors?.author && (
+                <span className="mt-1 block text-sm text-[#9b3d2c]" id="add-book-author-error">
+                  {state.fieldErrors.author}
+                </span>
+              )}
             </label>
             <label className="block text-sm font-medium text-[#50564d]">
               Year
               <input
+                aria-describedby={state.fieldErrors?.year ? "add-book-year-error" : undefined}
+                aria-invalid={Boolean(state.fieldErrors?.year)}
                 autoComplete="off"
                 className={inputClassName}
-                inputMode="numeric"
+                max={new Date().getFullYear()}
+                min="1"
                 name="year"
+                onInput={(event) => event.currentTarget.setCustomValidity("")}
+                onInvalid={(event) => {
+                  const input = event.currentTarget;
+                  input.setCustomValidity(
+                    input.validity.valueMissing
+                      ? "Please enter a publication year."
+                      : `Enter a whole year between 1 and ${new Date().getFullYear()}.`,
+                  );
+                }}
                 placeholder="e.g. 1987"
                 required
-                type="text"
+                step="1"
+                type="number"
               />
+              {state.fieldErrors?.year && (
+                <span className="mt-1 block text-sm text-[#9b3d2c]" id="add-book-year-error">
+                  {state.fieldErrors.year}
+                </span>
+              )}
             </label>
           </div>
           <div className="mt-6 flex justify-end gap-3">

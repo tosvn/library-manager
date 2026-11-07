@@ -40,6 +40,20 @@ export default function MobileNav({ currentPage }: { currentPage: SitePage }) {
             }}
             href={href}
           >
+            {page === "trash" && (
+              <svg
+                aria-hidden="true"
+                className="mr-2 inline size-4 align-[-2px]"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.8"
+                viewBox="0 0 24 24"
+              >
+                <path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6" />
+              </svg>
+            )}
             {label}
           </Link>
         ))}

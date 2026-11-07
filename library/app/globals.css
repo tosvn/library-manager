@@ -1,11 +1,5 @@
 @import "tailwindcss";
 
-:root {
-  color-scheme: light dark;
-  --background: #f6f5ef;
-  --foreground: #252c26;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -19,81 +13,380 @@ body {
   font-family: var(--font-geist-sans), sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --background: #121a16;
-    --foreground: #e8eee9;
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --background: #f7f5ff;
+  --foreground: #29243b;
+}
+
+main {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+main [class~="bg-[#294737]"] {
+  background-color: #6638e8 !important;
+  background-image: linear-gradient(115deg, #5145ed 0%, #8739db 100%) !important;
+}
+
+main [class~="text-[#294737]"],
+main [class~="text-[#2c5a3f]"] {
+  color: #6540d9 !important;
+}
+
+main [class~="text-[#233d32]"] {
+  color: #5740bb !important;
+}
+
+main button:not(:disabled) {
+  transition:
+    transform 160ms ease,
+    filter 160ms ease,
+    box-shadow 160ms ease;
+}
+
+main button:not(:disabled):hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+main button:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+main button[class~="bg-[#294737]"] {
+  background-image: linear-gradient(115deg, #5145ed 0%, #8739db 100%) !important;
+  box-shadow: 0 5px 14px rgb(101 64 217 / 20%);
+}
+
+main button[class~="bg-[#294737]"]:hover {
+  box-shadow: 0 8px 18px rgb(101 64 217 / 30%);
+}
+
+main button[aria-pressed="true"] {
+  border-color: transparent !important;
+  background-color: #6638e8 !important;
+  background-image: linear-gradient(115deg, #5145ed 0%, #8739db 100%) !important;
+  color: white !important;
+}
+
+main [class~="border-[#e5e3db]"] {
+  border-color: #e8e2f5 !important;
+}
+
+main [class~="bg-[#e6f0e8]"] {
+  background-color: #eee9ff !important;
+}
+
+main [class~="bg-[#f8ecd9]"] {
+  background-color: #fff1d7 !important;
+}
+
+main [class~="bg-[#f8e2df]"] {
+  background-color: #ffe6eb !important;
+}
+
+.library-page-shell {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #f7f5ff !important;
+}
+
+.library-page-shell::before,
+.library-page-shell::after {
+  position: absolute;
+  z-index: 0;
+  width: min(42rem, 80vw);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  content: "";
+  filter: blur(80px);
+  opacity: 0.3;
+  pointer-events: none;
+  animation: library-glow-drift 24s ease-in-out infinite alternate;
+}
+
+.library-page-shell::before {
+  top: 4rem;
+  left: -20rem;
+  background: radial-gradient(circle, #c9b9ff 0%, transparent 68%);
+}
+
+.library-page-shell::after {
+  top: 24rem;
+  right: -22rem;
+  background: radial-gradient(circle, #ffc6e7 0%, transparent 68%);
+  animation-delay: -12s;
+}
+
+.library-page-content {
+  position: relative;
+  z-index: 1;
+}
+
+.library-site-header::before {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  height: 4px;
+  background: linear-gradient(90deg, #5145ed 0 25%, #ec4899 25% 50%, #f59e0b 50% 75%, #10b981 75% 100%);
+  content: "";
+  transform: translateX(-50%);
+}
+
+.library-logo {
+  background: linear-gradient(135deg, #5145ed 0%, #8739db 52%, #ec4899 100%) !important;
+  box-shadow: 0 5px 14px rgb(124 58 237 / 25%);
+  animation: library-logo-rock 7s ease-in-out infinite;
+  transform-origin: 50% 75%;
+}
+
+.library-gradient-heading {
+  background: linear-gradient(105deg, #5145ed 5%, #8739db 55%, #c03aaf 100%);
+  background-clip: text;
+  color: transparent !important;
+  -webkit-background-clip: text;
+}
+
+.library-summary-card {
+  border-color: #e8e2f5 !important;
+  background: rgb(255 255 255 / 88%);
+  box-shadow: 0 5px 18px rgb(67 48 125 / 5%);
+  animation: library-rise-in 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.library-book-card {
+  border-color: #e8e2f5 !important;
+  background-color: rgb(255 255 255 / 92%) !important;
+  box-shadow: 0 8px 24px rgb(67 48 125 / 7%);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+  animation: library-rise-in 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.library-book-card:hover {
+  border-color: #d3c4ff !important;
+  transform: translateY(-4px);
+  box-shadow: 0 16px 34px rgb(101 64 217 / 16%);
+}
+
+.library-status--available {
+  background: #d9f8e8 !important;
+  color: #087443 !important;
+}
+
+.library-status--available .library-status-dot {
+  background: #0a9b5b;
+}
+
+.library-status--on-loan {
+  background: #fff0c2 !important;
+  color: #9a5a00 !important;
+}
+
+.library-status--on-loan .library-status-dot {
+  background: #d58a00;
+}
+
+.library-status--overdue {
+  background: #ffe1e7 !important;
+  color: #bd2949 !important;
+  animation: library-overdue-pulse 2.4s ease-in-out infinite;
+}
+
+.library-status--overdue .library-status-dot {
+  background: #e23b5d;
+}
+
+@keyframes library-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes library-overdue-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgb(226 59 93 / 0%);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgb(226 59 93 / 14%);
+  }
+}
+
+@keyframes library-logo-rock {
+  0%, 88%, 100% {
+    transform: rotate(0);
+  }
+  91% {
+    transform: rotate(-7deg);
+  }
+  95% {
+    transform: rotate(6deg);
+  }
+  98% {
+    transform: rotate(-3deg);
+  }
+}
+
+@keyframes library-glow-drift {
+  from {
+    transform: translate3d(-1rem, -1rem, 0) scale(0.96);
+  }
+  to {
+    transform: translate3d(2rem, 2rem, 0) scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 
-  main {
-    background-color: var(--background) !important;
-    color: var(--foreground) !important;
+  .library-book-card,
+  .library-book-card:hover {
+    transform: none;
   }
+}
 
-  main [class~="bg-white"],
-  main [class~="bg-white/70"] {
-    background-color: #1b2821 !important;
-  }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #29243b;
+  --foreground: #f0edf8;
+}
 
-  main [class~="bg-[#f3f2ed]"] {
-    background-color: #202d26 !important;
-  }
+:root[data-theme="dark"] main.library-page-shell {
+  background: #29243b !important;
+}
 
-  main [class~="bg-[#f6f5ef]"] {
-    background-color: #202d26 !important;
-  }
+:root[data-theme="dark"] .library-page-shell::before {
+  opacity: 0.2;
+}
 
-  main [class~="bg-[#e6f0e8]"] {
-    background-color: #254333 !important;
-  }
+:root[data-theme="dark"] .library-page-shell::after {
+  opacity: 0.16;
+}
 
-  main [class~="bg-[#f8ecd9]"] {
-    background-color: #493a26 !important;
-  }
+:root[data-theme="dark"] main [class~="bg-white"],
+:root[data-theme="dark"] main [class~="bg-white/70"] {
+  background-color: #34443b !important;
+}
 
-  main [class~="bg-[#f8e2df]"],
-  main [class~="bg-[#fbefed]"] {
-    background-color: #452b29 !important;
-  }
+:root[data-theme="dark"] main [class~="bg-[#f3f2ed]"],
+:root[data-theme="dark"] main [class~="bg-[#f6f5ef]"] {
+  background-color: #3c4c42 !important;
+}
 
-  main [class~="border-[#e5e3db]"],
-  main [class~="border-[#e4e2d9]"],
-  main [class~="border-[#eeece6]"],
-  main [class~="border-[#d6d3c9]"] {
-    border-color: #39483f !important;
-  }
+:root[data-theme="dark"] main [class~="bg-[#e6f0e8]"] {
+  background-color: #385941 !important;
+}
 
-  main [class~="text-[#252c26]"],
-  main [class~="text-[#30372f]"],
-  main [class~="text-[#233d32]"],
-  main [class~="text-[#50564d]"],
-  main [class~="text-[#686b61]"],
-  main [class~="text-[#73766d]"],
-  main [class~="text-[#85877e]"],
-  main [class~="text-[#54715d]"] {
-    color: #d3ddd5 !important;
-  }
+:root[data-theme="dark"] main [class~="bg-[#f8ecd9]"] {
+  background-color: #594b35 !important;
+}
 
-  main [class~="text-[#294737]"],
-  main [class~="text-[#2c5a3f]"] {
-    color: #9ac9a5 !important;
-  }
+:root[data-theme="dark"] main [class~="bg-[#f8e2df]"],
+:root[data-theme="dark"] main [class~="bg-[#fbefed]"] {
+  background-color: #573b38 !important;
+}
 
-  main [class~="text-[#80501d]"] {
-    color: #e4bd7d !important;
-  }
+:root[data-theme="dark"] main [class~="bg-[#294737]"] {
+  background-color: #6638e8 !important;
+}
 
-  main [class~="text-[#9b3d2c]"] {
-    color: #f0a197 !important;
-  }
+:root[data-theme="dark"] main .library-book-card {
+  border-color: #4a405f !important;
+  background-color: #342d49 !important;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
+}
 
-  main [class~="divide-[#eeece6]"] > :not(:last-child) {
-    border-color: #39483f !important;
-  }
+:root[data-theme="dark"] main .library-book-card:hover {
+  box-shadow: 0 14px 30px rgb(0 0 0 / 28%);
+}
 
-  main dialog {
-    background-color: #1b2821;
-    color: #e8eee9;
-  }
+:root[data-theme="dark"] main .library-summary-card {
+  border-color: #4a405f !important;
+  background: rgb(52 45 73 / 90%);
+}
+
+:root[data-theme="dark"] main .library-status--available {
+  background: #15583b !important;
+  color: #b6f5d2 !important;
+}
+
+:root[data-theme="dark"] main .library-status--on-loan {
+  background: #674718 !important;
+  color: #ffe6a3 !important;
+}
+
+:root[data-theme="dark"] main .library-status--overdue {
+  background: #702d42 !important;
+  color: #ffd1dc !important;
+}
+
+:root[data-theme="dark"] main [class~="hover:bg-[#20392c]"]:hover {
+  background-color: #4d7054 !important;
+}
+
+:root[data-theme="dark"] main [class~="hover:bg-[#f3f2ed]"]:hover,
+:root[data-theme="dark"] main [class~="hover:bg-[#eeece6]"]:hover,
+:root[data-theme="dark"] main [class~="hover:bg-[#f6f5ef]"]:hover {
+  background-color: #46564b !important;
+}
+
+:root[data-theme="dark"] main [class~="hover:text-[#294737]"]:hover {
+  color: #b7d9bb !important;
+}
+
+:root[data-theme="dark"] main [class~="border-[#e5e3db]"],
+:root[data-theme="dark"] main [class~="border-[#e4e2d9]"],
+:root[data-theme="dark"] main [class~="border-[#eeece6]"],
+:root[data-theme="dark"] main [class~="border-[#d6d3c9]"] {
+  border-color: #526258 !important;
+}
+
+:root[data-theme="dark"] main [class~="text-[#252c26]"],
+:root[data-theme="dark"] main [class~="text-[#30372f]"],
+:root[data-theme="dark"] main [class~="text-[#233d32]"],
+:root[data-theme="dark"] main [class~="text-[#50564d]"],
+:root[data-theme="dark"] main [class~="text-[#686b61]"],
+:root[data-theme="dark"] main [class~="text-[#73766d]"],
+:root[data-theme="dark"] main [class~="text-[#85877e]"],
+:root[data-theme="dark"] main [class~="text-[#54715d]"] {
+  color: #e1e9e2 !important;
+}
+
+:root[data-theme="dark"] main [class~="text-[#294737]"],
+:root[data-theme="dark"] main [class~="text-[#2c5a3f]"] {
+  color: #b7d9bb !important;
+}
+
+:root[data-theme="dark"] main [class~="text-[#80501d]"] {
+  color: #e9c990 !important;
+}
+
+:root[data-theme="dark"] main [class~="text-[#9b3d2c]"] {
+  color: #f3b1a7 !important;
+}
+
+:root[data-theme="dark"] main [class~="divide-[#eeece6]"] > :not(:last-child) {
+  border-color: #526258 !important;
+}
+
+:root[data-theme="dark"] main dialog {
+  background-color: #34443b;
+  color: #f0f3ef;
 }

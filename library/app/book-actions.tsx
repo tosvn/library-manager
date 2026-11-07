@@ -35,6 +35,18 @@ export default function BookActions({
   const isOnLoan = book.memberName !== null;
 
   useEffect(() => {
+    function closeMenuOnOutsideClick(event: MouseEvent) {
+      const menu = menuRef.current;
+      if (menu?.open && event.target instanceof Node && !menu.contains(event.target)) {
+        menu.open = false;
+      }
+    }
+
+    document.addEventListener("click", closeMenuOnOutsideClick);
+    return () => document.removeEventListener("click", closeMenuOnOutsideClick);
+  }, []);
+
+  useEffect(() => {
     if (editState.status === "success") {
       editDialogRef.current?.close();
     }
@@ -47,7 +59,15 @@ export default function BookActions({
   }, [lendState]);
 
   function confirmDelete(event: React.FormEvent<HTMLFormElement>) {
-    if (!window.confirm(`Move “${book.title}” to Trash? You can restore it within 20 days.`)) {
+    menuRef.current?.removeAttribute("open");
+
+    if (isOnLoan) {
+      event.preventDefault();
+      window.alert("This book is currently on loan. Please return it before deleting.");
+      return;
+    }
+
+    if (!window.confirm("Are you sure you want to delete?")) {
       event.preventDefault();
     }
   }
@@ -97,11 +117,10 @@ export default function BookActions({
             <input name="id" type="hidden" value={book.id} />
             <button
               className="block min-h-10 w-full rounded-lg px-3 text-left text-sm text-[#9b3d2c] hover:bg-[#fbefed] disabled:opacity-60"
-              disabled={deletePending || isOnLoan}
-              title={isOnLoan ? "Return this book before moving it to Trash" : undefined}
+              disabled={deletePending}
               type="submit"
             >
-              {deletePending ? "Moving..." : "Move to Trash"}
+              {deletePending ? "Deleting..." : "Delete"}
             </button>
           </form>
         </div>
@@ -140,6 +159,18 @@ export default function BookActions({
             <p className="mt-5 text-sm text-[#686b61]">
               Add a member before lending. <Link className="font-medium text-[#294737] underline" href="/members">Go to Members</Link>
             </p>
+          )}
+          {members.length > 0 && (
+            <label className="mt-4 block text-sm font-medium text-[#50564d]">
+              Due date
+              <input
+                className={inputClassName}
+                min={new Date().toISOString().slice(0, 10)}
+                name="dueOn"
+                required
+                type="date"
+              />
+            </label>
           )}
           <div className="mt-6 flex justify-end gap-3">
             <button

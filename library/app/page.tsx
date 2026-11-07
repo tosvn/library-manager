@@ -37,14 +37,15 @@ function CollectionFallback() {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#f6f5ef] px-4 pb-12 text-[#252c26] sm:px-6 sm:pb-16">
-      <div className="mx-auto max-w-6xl">
+    <main className="library-page-shell min-h-screen bg-[#f6f5ef] px-4 pb-12 text-[#252c26] sm:px-6 sm:pb-16">
+      <div className="library-page-content mx-auto max-w-6xl">
         <SiteHeader currentPage="books" />
         <section className="py-9 sm:py-12">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#54715d]">
+          <p className="inline-flex items-center gap-2 rounded-full bg-[#e6f0e8] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#54715d]">
+            <span aria-hidden="true" className="size-1.5 rounded-full bg-[#2c5a3f]" />
             A little something for your next chapter
           </p>
-          <h1 className="mt-3 max-w-2xl text-3xl font-semibold leading-tight tracking-tight text-[#233d32] sm:text-5xl">
+          <h1 className="library-gradient-heading mt-4 max-w-2xl text-3xl font-semibold leading-tight tracking-tight text-[#233d32] sm:text-5xl">
             Find your next good read.
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-6 text-[#686b61] sm:mt-4 sm:text-base">

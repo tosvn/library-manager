@@ -24,16 +24,16 @@ function formatDueDate(date: string) {
 function StatusBadge({ book, today }: { book: BookWithLoan; today: string }) {
   const overdue = isOverdue(book, today);
   const onLoan = book.memberName !== null;
+  const statusClass = overdue
+    ? "library-status--overdue"
+    : onLoan
+      ? "library-status--on-loan"
+      : "library-status--available";
   return (
     <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
-        overdue
-          ? "bg-[#f8e2df] text-[#9b3d2c]"
-          : onLoan
-            ? "bg-[#f8ecd9] text-[#80501d]"
-            : "bg-[#e6f0e8] text-[#2c5a3f]"
-      }`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass}`}
     >
+      <span aria-hidden="true" className="library-status-dot size-1.5 rounded-full" />
       {overdue ? "Overdue" : onLoan ? "On loan" : "Available"}
     </span>
   );
@@ -100,8 +100,12 @@ export default function BookCollection({
           { label: "On loan", value: onLoanCount, tone: "text-[#80501d]" },
           { label: "Overdue", value: overdueCount, tone: "text-[#9b3d2c]" },
           { label: "Active members", value: members.length, tone: "text-[#233d32]" },
-        ].map((item) => (
-          <div key={item.label} className="rounded-2xl border border-[#e5e3db] bg-white p-4 shadow-sm">
+        ].map((item, index) => (
+          <div
+            key={item.label}
+            className="library-summary-card rounded-2xl border border-[#e5e3db] bg-white p-4 shadow-sm"
+            style={{ animationDelay: `${index * 70}ms` }}
+          >
             <p className="text-xs font-medium text-[#686b61] sm:text-sm">{item.label}</p>
             <p className={`mt-1 text-2xl font-semibold tracking-tight ${item.tone}`}>{item.value}</p>
           </div>
@@ -203,14 +207,28 @@ export default function BookCollection({
           </div>
         ) : view === "cards" ? (
           <ul className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-            {visibleBooks.map((book) => (
-              <li key={book.id} className="flex min-h-44 flex-col justify-between rounded-2xl border border-[#e5e3db] bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6">
+            {visibleBooks.map((book, index) => (
+              <li
+                key={book.id}
+                className="library-book-card relative flex min-h-48 flex-col justify-between overflow-hidden rounded-2xl border border-[#e5e3db] bg-white p-5 sm:p-6"
+                style={{ animationDelay: `${Math.min(index, 8) * 65}ms` }}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`absolute inset-y-5 left-0 w-1 rounded-r-full ${
+                    isOverdue(book, today)
+                      ? "bg-[#c56a58]"
+                      : book.memberName
+                        ? "bg-[#c69a50]"
+                        : "bg-[#5f956b]"
+                  }`}
+                />
                 <div>
                   <div className="flex items-start justify-between gap-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#85877e]">{book.year}</p>
+                    <p className="rounded-md bg-[#f6f5ef] px-2 py-1 text-xs font-semibold tracking-wide text-[#686b61]">{book.year}</p>
                     <StatusBadge book={book} today={today} />
                   </div>
-                  <h3 className="mt-3 text-lg font-semibold leading-snug tracking-tight text-[#252c26]">{book.title}</h3>
+                  <h3 className="mt-4 text-xl font-semibold leading-snug tracking-tight text-[#252c26]">{book.title}</h3>
                   <p className="mt-1 text-sm text-[#686b61]">by {book.authorName}</p>
                 </div>
                 <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#eeece6] pt-3">

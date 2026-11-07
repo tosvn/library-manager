@@ -1,3 +1,5 @@
+import RetryButton from "./retry-button";
+
 export default function DataLoadError({ resource }: { resource: string }) {
   return (
     <div
@@ -9,12 +11,12 @@ export default function DataLoadError({ resource }: { resource: string }) {
         The library database could not be reached. Check the database connection
         settings and make sure the database is available, then try again.
       </p>
-      <a
-        className="mt-4 inline-flex min-h-10 items-center rounded-lg border border-[#d6d3c9] px-4 text-sm font-semibold text-[#294737] hover:bg-white"
-        href=""
-      >
-        Try again
-      </a>
+      <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#686b61]">
+        If the problem continues, contact your library administrator and include
+        the page you were opening and when the error occurred. Never send
+        passwords or database connection URLs.
+      </p>
+      <RetryButton />
     </div>
   );
 }

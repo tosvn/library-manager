@@ -7,6 +7,7 @@ import { sql } from "@/db";
 export type AddBookState = {
   message: string;
   status: "success" | "error" | null;
+  fieldErrors?: Partial<Record<"title" | "author" | "year", string>>;
 };
 
 export type AddMemberState = {
@@ -36,24 +37,28 @@ export async function addBook(
     typeof authorValue === "string" ? authorValue.trim() : "";
   const yearText = typeof yearValue === "string" ? yearValue.trim() : "";
 
-  if (!title) {
-    return { status: "error", message: "Enter a book title." };
-  }
-
-  if (!authorName) {
-    return { status: "error", message: "Enter an author." };
-  }
-
   const year = Number(yearText);
+  const fieldErrors: NonNullable<AddBookState["fieldErrors"]> = {};
+  if (!title) {
+    fieldErrors.title = "Enter a book title.";
+  }
+  if (!authorName) {
+    fieldErrors.author = "Enter an author.";
+  }
   if (
     !/^\d+$/.test(yearText) ||
     !Number.isSafeInteger(year) ||
     year < 1 ||
     year > new Date().getFullYear()
   ) {
+    fieldErrors.year = `Enter a whole year between 1 and ${new Date().getFullYear()}.`;
+  }
+
+  if (Object.keys(fieldErrors).length > 0) {
     return {
       status: "error",
-      message: `Enter a valid year between 1 and ${new Date().getFullYear()}.`,
+      message: "Please correct the highlighted fields.",
+      fieldErrors,
     };
   }
 
@@ -132,12 +137,28 @@ export async function lendBook(
 ): Promise<LoanActionState> {
   const bookIdValue = formData.get("bookId");
   const memberIdValue = formData.get("memberId");
+  const dueOnValue = formData.get("dueOn");
   const bookId = typeof bookIdValue === "string" ? bookIdValue.trim() : "";
   const memberId =
     typeof memberIdValue === "string" ? memberIdValue.trim() : "";
+  const dueOn = typeof dueOnValue === "string" ? dueOnValue.trim() : "";
 
   if (!/^\d+$/.test(bookId) || !/^\d+$/.test(memberId)) {
     return { status: "error", message: "Choose a valid book and member." };
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dueOn)) {
+    return { status: "error", message: "Choose a valid due date." };
+  }
+
+  const parsedDueOn = new Date(`${dueOn}T00:00:00.000Z`);
+  if (
+    Number.isNaN(parsedDueOn.getTime()) ||
+    parsedDueOn.toISOString().slice(0, 10) !== dueOn
+  ) {
+    return { status: "error", message: "Choose a valid due date." };
+  }
+  if (dueOn < new Date().toISOString().slice(0, 10)) {
+    return { status: "error", message: "Due date cannot be in the past." };
   }
 
   let result: "lent" | "missing-book" | "missing-member" | "already-loaned";
@@ -177,7 +198,7 @@ export async function lendBook(
 
       await transaction`
         INSERT INTO loans (book_id, member_id, borrowed_on, due_on)
-        VALUES (${book.id}, ${member.id}, CURRENT_DATE, CURRENT_DATE + 14)
+        VALUES (${book.id}, ${member.id}, CURRENT_DATE, ${dueOn}::date)
       `;
       return "lent";
     });
@@ -424,7 +445,7 @@ export async function deleteBook(
 
   revalidatePath("/");
   revalidatePath("/trash");
-  redirect("/trash?notice=book-moved");
+  return { status: "success", message: "Book moved to Trash." };
 }
 
 export async function restoreBook(
