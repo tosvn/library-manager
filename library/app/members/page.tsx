@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import AddMemberForm from "../add-member-form";
 import DataLoadError from "../data-load-error";
 import SiteHeader from "../site-header";
+import MemberActions from "../member-actions";
 import { getMembers, type LibraryMember } from "@/db/queries";
 
 async function MemberList() {
@@ -34,6 +35,7 @@ async function MemberList() {
           <p className="mt-2 text-sm text-[#686b61]">
             {member.phone || "No phone number"}
           </p>
+          <MemberActions member={member} />
         </li>
       ))}
     </ul>

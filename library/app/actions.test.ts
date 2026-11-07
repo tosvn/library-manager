@@ -17,6 +17,7 @@ import {
   lendBook,
   restoreBook,
   returnBook,
+  updateMember,
   type AddBookState,
   type LoanActionState,
   type TrashActionState,
@@ -230,5 +231,61 @@ describe("book actions", () => {
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/");
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/trash");
     expect(mocks.redirect).toHaveBeenCalledWith("/trash?notice=book-restored");
+  });
+});
+
+describe("member actions", () => {
+  it("updates a member name and phone number", async () => {
+    setQueryHandler((query) => {
+      if (query.includes("update members")) return [{ id: "2" }];
+      return [];
+    });
+
+    const state = await updateMember(
+      emptyAddBookState,
+      formData({ id: "2", name: " Alex Morgan ", phone: " 555-0100 " }),
+    );
+
+    expect(state).toEqual({ status: "success", message: "Member updated." });
+    expect(mocks.queryHandler).toHaveBeenCalledWith(
+      expect.stringContaining("UPDATE members"),
+      ["Alex Morgan", "555-0100", "2"],
+    );
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/members");
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/");
+  });
+
+  it("requires a valid member ID and non-empty name", async () => {
+    const invalidId = await updateMember(
+      emptyAddBookState,
+      formData({ id: "invalid", name: "Alex" }),
+    );
+    const missingName = await updateMember(
+      emptyAddBookState,
+      formData({ id: "2", name: " " }),
+    );
+
+    expect(invalidId).toEqual({
+      status: "error",
+      message: "This member could not be found.",
+    });
+    expect(missingName).toEqual({
+      status: "error",
+      message: "Enter a member name.",
+    });
+    expect(mocks.queryHandler).not.toHaveBeenCalled();
+  });
+
+  it("reports when the member no longer exists", async () => {
+    const state = await updateMember(
+      emptyAddBookState,
+      formData({ id: "2", name: "Alex Morgan", phone: "" }),
+    );
+
+    expect(state).toEqual({
+      status: "error",
+      message: "This member could not be found.",
+    });
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 });

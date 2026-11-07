@@ -131,6 +131,48 @@ export async function addMember(
   }
 }
 
+export async function updateMember(
+  _previousState: AddMemberState,
+  formData: FormData,
+): Promise<AddMemberState> {
+  const idValue = formData.get("id");
+  const nameValue = formData.get("name");
+  const phoneValue = formData.get("phone");
+  const id = typeof idValue === "string" ? idValue.trim() : "";
+  const name = typeof nameValue === "string" ? nameValue.trim() : "";
+  const phone = typeof phoneValue === "string" ? phoneValue.trim() : "";
+
+  if (!/^\d+$/.test(id)) {
+    return { status: "error", message: "This member could not be found." };
+  }
+  if (!name) {
+    return { status: "error", message: "Enter a member name." };
+  }
+
+  try {
+    const [updatedMember] = await getSql()<{ id: string }[]>`
+      UPDATE members
+      SET name = ${name}, phone = ${phone || null}
+      WHERE id::text = ${id}
+      RETURNING id::text AS id
+    `;
+
+    if (!updatedMember) {
+      return { status: "error", message: "This member could not be found." };
+    }
+
+    revalidatePath("/members");
+    revalidatePath("/");
+    return { status: "success", message: "Member updated." };
+  } catch (error) {
+    console.error("Failed to update member.", error);
+    return {
+      status: "error",
+      message: "The member could not be updated. Please try again.",
+    };
+  }
+}
+
 export async function lendBook(
   _previousState: LoanActionState,
   formData: FormData,
